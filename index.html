@@ -46,15 +46,21 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="dbtSpend">Current annual dbt spend (if applicable)</label>
-                        <select id="dbtSpend" name="dbtSpend">
-                            <option value="0">Not using dbt</option>
+                        <label for="transformationSpend">Current annual transformation tool spend (dbt, Coalesce, etc.)</label>
+                        <select id="transformationSpend" name="transformationSpend">
+                            <option value="0">Not using</option>
                             <option value="25000">Under $25K</option>
                             <option value="50000">$25K - $50K</option>
                             <option value="100000">$50K - $100K</option>
                             <option value="200000">$100K - $200K</option>
                             <option value="300000">Over $200K</option>
                         </select>
+                    </div>
+
+                    <div class="form-group" id="transformationToolGroup" style="display: none;">
+                        <label for="transformationTool">Which data transformation tool are you currently using?</label>
+                        <input type="text" id="transformationTool" name="transformationTool" placeholder="e.g., dbt, Coalesce, Matillion, etc.">
+                        <small>Optional - only if you have transformation tool spend</small>
                     </div>
 
                     <div class="form-group">
@@ -381,6 +387,23 @@
                                     <option value="draw.io">Draw.io</option>
                                     <option value="other">Other</option>
                                 </select>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="modTransformationSpend">Transformation Tool Spend</label>
+                                <select id="modTransformationSpend">
+                                    <option value="0">Not using</option>
+                                    <option value="25000">Under $25K</option>
+                                    <option value="50000">$25K - $50K</option>
+                                    <option value="100000">$50K - $100K</option>
+                                    <option value="200000">$100K - $200K</option>
+                                    <option value="300000">Over $200K</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="modTransformationTool">Transformation Tool</label>
+                                <input type="text" id="modTransformationTool" placeholder="e.g., dbt, Coalesce, etc.">
                             </div>
 
                             <div class="input-group">

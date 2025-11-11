@@ -101,6 +101,35 @@ class ROICalculatorApp {
                 this.updateFormData();
             });
         });
+
+        // Setup transformation tool visibility
+        this.setupTransformationToolVisibility();
+    }
+
+    setupTransformationToolVisibility() {
+        const transformationSpend = document.getElementById('transformationSpend');
+        const transformationToolGroup = document.getElementById('transformationToolGroup');
+        
+        if (transformationSpend && transformationToolGroup) {
+            const toggleVisibility = () => {
+                if (transformationSpend.value === '0') {
+                    transformationToolGroup.style.display = 'none';
+                    // Clear the tool name if hiding
+                    const transformationTool = document.getElementById('transformationTool');
+                    if (transformationTool) {
+                        transformationTool.value = '';
+                    }
+                } else {
+                    transformationToolGroup.style.display = 'block';
+                }
+            };
+
+            // Set initial state
+            toggleVisibility();
+            
+            // Listen for changes
+            transformationSpend.addEventListener('change', toggleVisibility);
+        }
     }
 
     setupSliders() {
@@ -498,6 +527,8 @@ class ROICalculatorApp {
             { id: 'modStakeholders', value: this.formData.stakeholders },
             { id: 'modDataProducts', value: this.formData.dataProducts },
             { id: 'modCurrentTools', value: this.formData.currentTools },
+            { id: 'modTransformationSpend', value: this.formData.transformationSpend },
+            { id: 'modTransformationTool', value: this.formData.transformationTool },
             { id: 'modIndustry', value: this.formData.industry },
             { id: 'modCompanySize', value: this.formData.companySize },
             { id: 'modReworkPercent', value: this.formData.reworkPercent },
@@ -544,6 +575,8 @@ class ROICalculatorApp {
         const modStakeholders = document.getElementById('modStakeholders');
         const modDataProducts = document.getElementById('modDataProducts');
         const modCurrentTools = document.getElementById('modCurrentTools');
+        const modTransformationSpend = document.getElementById('modTransformationSpend');
+        const modTransformationTool = document.getElementById('modTransformationTool');
         const modIndustry = document.getElementById('modIndustry');
         const modCompanySize = document.getElementById('modCompanySize');
         const modReworkPercent = document.getElementById('modReworkPercent');
@@ -554,6 +587,8 @@ class ROICalculatorApp {
         if (modStakeholders) this.formData.stakeholders = modStakeholders.value;
         if (modDataProducts) this.formData.dataProducts = modDataProducts.value;
         if (modCurrentTools) this.formData.currentTools = modCurrentTools.value;
+        if (modTransformationSpend) this.formData.transformationSpend = modTransformationSpend.value;
+        if (modTransformationTool) this.formData.transformationTool = modTransformationTool.value;
         if (modIndustry) this.formData.industry = modIndustry.value;
         if (modCompanySize) this.formData.companySize = modCompanySize.value;
         if (modReworkPercent) this.formData.reworkPercent = modReworkPercent.value;
@@ -693,6 +728,8 @@ class ROICalculatorApp {
                 stakeholders: this.formData.stakeholders || 0,
                 dataProducts: this.formData.dataProducts || 0,
                 currentTools: this.formData.currentTools || '',
+                transformationSpend: this.formData.transformationSpend || '0',
+                transformationTool: this.formData.transformationTool || '',
                 
                 // Executive Summary (Key ROI Metrics)
                 executiveSummary: {

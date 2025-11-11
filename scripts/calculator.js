@@ -69,7 +69,7 @@ class ROICalculator {
         const inputs = {
             // Convert form data to numbers and apply defaults
             dbSpend: parseInt(formData.dbSpend) || 0,
-            dbtSpend: parseInt(formData.dbtSpend) || 0,
+            transformationSpend: parseInt(formData.transformationSpend) || 0,
             teamSize: parseInt(formData.teamSize) || 1,
             stakeholders: parseInt(formData.stakeholders) || 1,
             dataProducts: parseInt(formData.dataProducts) || 1,
