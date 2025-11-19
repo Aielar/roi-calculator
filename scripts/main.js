@@ -701,6 +701,14 @@ class ROICalculatorApp {
         }
     }
 
+    // Helper to get cookie value
+    getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return '';
+    }
+
     // Send webhook with lead data and ROI results
     async sendWebhookData() {
         try {
@@ -708,6 +716,9 @@ class ROICalculatorApp {
                 console.warn('Missing results or form data for webhook');
                 return;
             }
+
+            // Get HubSpot cookie
+            const hubspotutk = this.getCookie('hubspotutk');
 
             // Prepare the JSON payload
             const webhookData = {
@@ -718,6 +729,11 @@ class ROICalculatorApp {
                 company: this.formData.company || '',
                 jobTitle: this.formData.jobTitle || '',
                 
+                // HubSpot Tracking
+                hubspotutk: hubspotutk || '',
+                pageUri: window.location.href,
+                pageName: document.title,
+
                 // Company Details
                 industry: this.formData.industry || '',
                 companySize: this.formData.companySize || '',
