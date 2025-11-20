@@ -175,28 +175,15 @@
                         </select>
                     </div>
 
-                    <div class="form-group checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="usesCICD" name="usesCICD">
-                            <span class="checkmark"></span>
-                            Team uses Git/CI-CD integration today
-                        </label>
-                    </div>
-
-                    <div class="form-group checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="usesGovernance" name="usesGovernance">
-                            <span class="checkmark"></span>
-                            Team uses governance tools (Collibra, Alation, Informatica)
-                        </label>
-                    </div>
-
-                    <div class="form-group checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="cloudOnly" name="cloudOnly">
-                            <span class="checkmark"></span>
-                            Organization is cloud-only (not hybrid)
-                        </label>
+                    <div class="form-group">
+                        <label for="cloudMaturity">Cloud Maturity</label>
+                        <select id="cloudMaturity" name="cloudMaturity">
+                            <option value="initial">Initial - Early cloud and data footing</option>
+                            <option value="emerging">Emerging - Some cloud use, limited structure</option>
+                            <option value="scaling">Scaling - Growing adoption with partial standards</option>
+                            <option value="optimizing">Optimizing - Consistent processes across teams</option>
+                            <option value="mature">Mature - Fully modern, governed, cloud aligned</option>
+                        </select>
                     </div>
                 </div>
 
@@ -434,6 +421,17 @@
                             </div>
 
                             <div class="input-group">
+                                <label for="modCloudMaturity">Cloud Maturity</label>
+                                <select id="modCloudMaturity">
+                                    <option value="initial">Initial - Early cloud and data footing</option>
+                                    <option value="emerging">Emerging - Some cloud use, limited structure</option>
+                                    <option value="scaling">Scaling - Growing adoption with partial standards</option>
+                                    <option value="optimizing">Optimizing - Consistent processes across teams</option>
+                                    <option value="mature">Mature - Fully modern, governed, cloud aligned</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group">
                                 <label for="modReworkPercent">Rework/Technical Debt %</label>
                                 <div class="slider-container">
                                     <input type="range" id="modReworkPercent" min="0" max="50" class="slider">
@@ -476,11 +474,11 @@
         </div>
     </div>
 
-    <script src="scripts/validation.js"></script>
-    <script src="scripts/calculator.js"></script>
-    <script src="scripts/charts.js"></script>
-    <script src="scripts/pdf-generator.js"></script>
-    <script src="scripts/main.js"></script>
+    <script src="scripts/validation.js?v=2"></script>
+    <script src="scripts/calculator.js?v=2"></script>
+    <script src="scripts/charts.js?v=2"></script>
+    <script src="scripts/pdf-generator.js?v=2"></script>
+    <script src="scripts/main.js?v=2"></script>
     
     <!-- HubSpot Tracking Code -->
     <script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/24319257.js"></script>

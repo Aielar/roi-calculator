@@ -82,11 +82,12 @@ class ROICalculator {
             industry: formData.industry || 'other',
             companySize: formData.companySize || 'medium',
             region: formData.region || 'americas',
+            cloudMaturity: formData.cloudMaturity || 'initial',
             
-            // Boolean flags
-            usesCICD: formData.usesCICD || false,
-            usesGovernance: formData.usesGovernance || false,
-            cloudOnly: formData.cloudOnly || false,
+            // Boolean flags (derived from maturity if needed, or removed)
+            // usesCICD: formData.usesCICD || false,
+            // usesGovernance: formData.usesGovernance || false,
+            // cloudOnly: formData.cloudOnly || false,
             
             // Contact info
             businessEmail: formData.businessEmail || '',
@@ -119,10 +120,16 @@ class ROICalculator {
             timeSavedPercent = 0.20; // Less savings from advanced tools
         }
         
-        // Bonus for CI/CD integration readiness
-        if (inputs.usesCICD) {
-            timeSavedPercent += 0.05;
-        }
+        // Bonus for Cloud Maturity (replacing CI/CD check)
+        // Higher maturity implies better readiness for automation
+        const maturityBonus = {
+            'initial': 0,
+            'emerging': 0.02,
+            'scaling': 0.04,
+            'optimizing': 0.06,
+            'mature': 0.08
+        };
+        timeSavedPercent += (maturityBonus[inputs.cloudMaturity] || 0);
         
         // Apply company and industry multipliers
         timeSavedPercent *= inputs.overallMultiplier;
@@ -149,10 +156,15 @@ class ROICalculator {
         const sqldbmReworkReduction = 0.20; // 20% base reduction
         reworkAvoided = Math.min(reworkAvoided, sqldbmReworkReduction * inputs.overallMultiplier);
         
-        // Governance tools provide additional benefit
-        if (inputs.usesGovernance) {
-            reworkAvoided *= 1.1;
-        }
+        // Higher maturity provides additional benefit (replacing Governance check)
+        const maturityMultiplier = {
+            'initial': 1.0,
+            'emerging': 1.05,
+            'scaling': 1.1,
+            'optimizing': 1.15,
+            'mature': 1.2
+        };
+        reworkAvoided *= (maturityMultiplier[inputs.cloudMaturity] || 1.0);
         
         const annualSavings = inputs.dataProducts * this.DEFAULT_HOURS_PER_MODEL * this.DEFAULT_HOURLY_COST * reworkAvoided;
         
@@ -169,14 +181,16 @@ class ROICalculator {
         
         let hoursSavedPerMonth = 3; // Default 3 hours per stakeholder per month
         
-        // Adjust based on team practices
-        if (inputs.usesGovernance) {
-            hoursSavedPerMonth += 1; // Better documentation and discovery
-        }
+        // Adjust based on Cloud Maturity (replacing Governance and Cloud Only checks)
+        const maturityHoursBonus = {
+            'initial': 0,
+            'emerging': 0.5,
+            'scaling': 1.0,
+            'optimizing': 1.5,
+            'mature': 2.0
+        };
         
-        if (inputs.cloudOnly) {
-            hoursSavedPerMonth += 0.5; // Easier access and collaboration
-        }
+        hoursSavedPerMonth += (maturityHoursBonus[inputs.cloudMaturity] || 0);
         
         // Apply multipliers
         hoursSavedPerMonth *= inputs.overallMultiplier;

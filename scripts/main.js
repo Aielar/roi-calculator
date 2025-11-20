@@ -168,12 +168,6 @@ class ROICalculatorApp {
         for (let [key, value] of formData.entries()) {
             this.formData[key] = value;
         }
-
-        // Add checkbox values
-        const checkboxes = form.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(checkbox => {
-            this.formData[checkbox.name] = checkbox.checked;
-        });
     }
 
     nextStep() {
@@ -531,6 +525,7 @@ class ROICalculatorApp {
             { id: 'modTransformationTool', value: this.formData.transformationTool },
             { id: 'modIndustry', value: this.formData.industry },
             { id: 'modCompanySize', value: this.formData.companySize },
+            { id: 'modCloudMaturity', value: this.formData.cloudMaturity },
             { id: 'modReworkPercent', value: this.formData.reworkPercent },
             { id: 'modRevisionPercent', value: this.formData.revisionPercent }
         ];
@@ -579,6 +574,7 @@ class ROICalculatorApp {
         const modTransformationTool = document.getElementById('modTransformationTool');
         const modIndustry = document.getElementById('modIndustry');
         const modCompanySize = document.getElementById('modCompanySize');
+        const modCloudMaturity = document.getElementById('modCloudMaturity');
         const modReworkPercent = document.getElementById('modReworkPercent');
         const modRevisionPercent = document.getElementById('modRevisionPercent');
 
@@ -591,6 +587,7 @@ class ROICalculatorApp {
         if (modTransformationTool) this.formData.transformationTool = modTransformationTool.value;
         if (modIndustry) this.formData.industry = modIndustry.value;
         if (modCompanySize) this.formData.companySize = modCompanySize.value;
+        if (modCloudMaturity) this.formData.cloudMaturity = modCloudMaturity.value;
         if (modReworkPercent) this.formData.reworkPercent = modReworkPercent.value;
         if (modRevisionPercent) this.formData.revisionPercent = modRevisionPercent.value;
     }
@@ -746,6 +743,7 @@ class ROICalculatorApp {
                 currentTools: this.formData.currentTools || '',
                 transformationSpend: this.formData.transformationSpend || '0',
                 transformationTool: this.formData.transformationTool || '',
+                cloudMaturity: this.formData.cloudMaturity || '',
                 
                 // Executive Summary (Key ROI Metrics)
                 executiveSummary: {
