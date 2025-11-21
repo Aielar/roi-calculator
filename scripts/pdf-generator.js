@@ -47,11 +47,6 @@ class PDFGenerator {
             this.addCalculationDetails(doc, results);
             this.addFooter(doc, 2);
 
-            // Page 3: Call to Action
-            doc.addPage();
-            this.addCallToAction(doc, results);
-            this.addFooter(doc, 3);
-
             // Generate filename
             const timestamp = new Date().toISOString().split('T')[0];
             const companyName = formData.company.replace(/[^a-zA-Z0-9]/g, '_');
@@ -101,7 +96,7 @@ class PDFGenerator {
                 month: 'long',
                 day: 'numeric'
             });
-            doc.text(`Generated on ${currentDate}`, this.margin, 28);
+            doc.text(`Generated on ${currentDate} - Contact us at: sales@sqldbm.com`, this.margin, 28);
         }
 
         // Separator

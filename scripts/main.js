@@ -30,7 +30,137 @@ class ROICalculatorApp {
         // Initialize progress
         this.updateProgress();
         
+        // Setup Industry Dropdown
+        this.setupIndustryDropdown();
+        
         console.log('ROI Calculator App initialized');
+    }
+
+    setupIndustryDropdown() {
+        const container = document.getElementById('industrySelectContainer');
+        const searchInput = document.getElementById('industrySearch');
+        const hiddenInput = document.getElementById('industry');
+        const optionsList = document.getElementById('industryOptions');
+        
+        if (!container || !searchInput || !hiddenInput || !optionsList) return;
+
+        // Fallback list in case external file fails to load
+        const FALLBACK_INDUSTRIES = [
+            "Accounting", "Airlines/Aviation", "Alternative Dispute Resolution", "Alternative Medicine", "Animation", "Apparel & Fashion", 
+            "Architecture & Planning", "Arts and Crafts", "Automotive", "Aviation & Aerospace", "Banking", "Biotechnology", "Broadcast Media", 
+            "Building Materials", "Business Supplies and Equipment", "Capital Markets", "Chemicals", "Civic & Social Organization", "Civil Engineering", 
+            "Commercial Real Estate", "Computer & Network Security", "Computer Games", "Computer Hardware", "Computer Networking", "Computer Software", 
+            "Internet", "Construction", "Consumer Electronics", "Consumer Goods", "Consumer Services", "Cosmetics", "Dairy", "Defense & Space", 
+            "Design", "Education Management", "E-Learning", "Electrical/Electronic Manufacturing", "Entertainment", "Environmental Services", 
+            "Events Services", "Executive Office", "Facilities Services", "Farming", "Financial Services", "Fine Art", "Fishery", "Food & Beverages", 
+            "Food Production", "Fund-Raising", "Furniture", "Gambling & Casinos", "Glass, Ceramics & Concrete", "Government Administration", 
+            "Government Relations", "Graphic Design", "Health, Wellness and Fitness", "Higher Education", "Hospital & Health Care", "Hospitality", 
+            "Human Resources", "Import and Export", "Individual & Family Services", "Industrial Automation", "Information Services", 
+            "Information Technology and Services", "Insurance", "International Affairs", "International Trade and Development", "Investment Banking", 
+            "Investment Management", "Judiciary", "Law Enforcement", "Law Practice", "Legal Services", "Legislative Office", "Leisure, Travel & Tourism", 
+            "Libraries", "Logistics and Supply Chain", "Luxury Goods & Jewelry", "Machinery", "Management Consulting", "Maritime", "Market Research", 
+            "Marketing and Advertising", "Mechanical or Industrial Engineering", "Media Production", "Medical Devices", "Medical Practice", 
+            "Mental Health Care", "Military", "Mining & Metals", "Motion Pictures and Film", "Museums and Institutions", "Music", "Nanotechnology", 
+            "Newspapers", "Non-Profit Organization Management", "Oil & Energy", "Online Media", "Outsourcing/Offshoring", "Package/Freight Delivery", 
+            "Packaging and Containers", "Paper & Forest Products", "Performing Arts", "Pharmaceuticals", "Philanthropy", "Photography", "Plastics", 
+            "Political Organization", "Primary/Secondary Education", "Printing", "Professional Training & Coaching", "Program Development", 
+            "Public Policy", "Public Relations and Communications", "Public Safety", "Publishing", "Railroad Manufacture", "Ranching", "Real Estate", 
+            "Recreational Facilities and Services", "Religious Institutions", "Renewables & Environment", "Research", "Restaurants", "Retail", 
+            "Security and Investigations", "Semiconductors", "Shipbuilding", "Sporting Goods", "Sports", "Staffing and Recruiting", "Supermarkets", 
+            "Telecommunications", "Textiles", "Think Tanks", "Tobacco", "Translation and Localization", "Transportation/Trucking/Railroad", 
+            "Utilities", "Venture Capital & Private Equity", "Veterinary", "Warehousing", "Wholesale", "Wine and Spirits", "Wireless", 
+            "Writing and Editing", "Mobile Games", "Agriculture", "Manufacturing"
+        ];
+
+        // Populate options
+        const populateOptions = (filter = '') => {
+            optionsList.innerHTML = '';
+            
+            // Use global INDUSTRIES array or fallback
+            const industriesList = (typeof window.INDUSTRIES !== 'undefined' && window.INDUSTRIES.length > 0) 
+                ? window.INDUSTRIES 
+                : FALLBACK_INDUSTRIES;
+            
+            console.log(`Populating industries. Found ${industriesList.length} items. Filter: "${filter}"`);
+            
+            const filtered = industriesList.filter(ind => 
+                ind.toLowerCase().includes(filter.toLowerCase())
+            );
+            
+            if (filtered.length === 0) {
+                const noResult = document.createElement('div');
+                noResult.className = 'custom-option no-result';
+                noResult.textContent = 'No matches found';
+                noResult.style.color = 'var(--text-secondary)';
+                noResult.style.cursor = 'default';
+                optionsList.appendChild(noResult);
+                return;
+            }
+
+            filtered.forEach(ind => {
+                const div = document.createElement('div');
+                div.className = 'custom-option';
+                div.textContent = ind;
+                div.dataset.value = ind;
+                
+                if (ind === hiddenInput.value) {
+                    div.classList.add('selected');
+                }
+                
+                div.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent bubbling
+                    this.selectIndustry(ind);
+                });
+                
+                optionsList.appendChild(div);
+            });
+        };
+
+        // Initial population
+        populateOptions();
+
+        // Event listeners
+        searchInput.addEventListener('focus', () => {
+            container.classList.add('open');
+            populateOptions(''); // Show all on focus
+        });
+
+        searchInput.addEventListener('click', () => {
+            container.classList.add('open');
+            populateOptions(''); // Show all on click
+        });
+
+        searchInput.addEventListener('input', () => {
+            container.classList.add('open');
+            populateOptions(searchInput.value);
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!container.contains(e.target)) {
+                container.classList.remove('open');
+                // Reset search input to match hidden value
+                if (hiddenInput.value) {
+                    searchInput.value = hiddenInput.value;
+                } else {
+                    searchInput.value = '';
+                }
+            }
+        });
+    }
+
+    selectIndustry(value) {
+        const searchInput = document.getElementById('industrySearch');
+        const hiddenInput = document.getElementById('industry');
+        const container = document.getElementById('industrySelectContainer');
+        
+        hiddenInput.value = value;
+        searchInput.value = value;
+        container.classList.remove('open');
+        
+        // Trigger change event for validation
+        const event = new Event('change', { bubbles: true });
+        hiddenInput.dispatchEvent(event);
     }
 
     setupEventListeners() {
@@ -292,6 +422,13 @@ class ROICalculatorApp {
             this.hideLoading();
             this.showError('An error occurred while calculating your ROI. Please try again.');
         }
+    }
+
+    async sendWebhookData() {
+        // Placeholder for webhook integration
+        // In a real implementation, this would send data to HubSpot or another CRM
+        console.log('Sending webhook data (simulated)...');
+        return Promise.resolve();
     }
 
     showLoading() {
@@ -703,95 +840,12 @@ class ROICalculatorApp {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
         if (parts.length === 2) return parts.pop().split(';').shift();
-        return '';
-    }
-
-    // Send webhook with lead data and ROI results
-    async sendWebhookData() {
-        try {
-            if (!this.results || !this.formData) {
-                console.warn('Missing results or form data for webhook');
-                return;
-            }
-
-            // Get HubSpot cookie
-            const hubspotutk = this.getCookie('hubspotutk');
-
-            // Prepare the JSON payload
-            const webhookData = {
-                // Contact Information
-                firstName: this.formData.firstName || '',
-                lastName: this.formData.lastName || '', 
-                email: this.formData.businessEmail || '',
-                company: this.formData.company || '',
-                jobTitle: this.formData.jobTitle || '',
-                
-                // HubSpot Tracking
-                hubspotutk: hubspotutk || '',
-                pageUri: window.location.href,
-                pageName: document.title,
-
-                // Company Details
-                industry: this.formData.industry || '',
-                companySize: this.formData.companySize || '',
-                region: this.formData.region || '',
-                
-                // Current Environment
-                teamSize: this.formData.teamSize || 0,
-                stakeholders: this.formData.stakeholders || 0,
-                dataProducts: this.formData.dataProducts || 0,
-                currentTools: this.formData.currentTools || '',
-                transformationSpend: this.formData.transformationSpend || '0',
-                transformationTool: this.formData.transformationTool || '',
-                cloudMaturity: this.formData.cloudMaturity || '',
-                
-                // Executive Summary (Key ROI Metrics)
-                executiveSummary: {
-                    paybackPeriodMonths: Math.round(this.results.metrics.paybackMonths * 10) / 10,
-                    annualValueCreated: this.results.metrics.totalAnnualValue,
-                    threeYearROI: this.results.metrics.threeYearROI,
-                    netThreeYearValue: this.results.metrics.threeYearValue,
-                    netAnnualValue: this.results.metrics.netAnnualValue
-                },
-                
-                // Additional Context
-                submissionDate: new Date().toISOString(),
-                calculatorVersion: '1.0',
-                leadSource: 'SqlDBM ROI Calculator'
-            };
-
-            // Send to webhook endpoint
-            const response = await fetch('https://sqldbm1.app.n8n.cloud/webhook/form-submission', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(webhookData)
-            });
-
-            if (response.ok) {
-                console.log('Webhook sent successfully');
-                // Optionally store success flag for analytics
-                this.webhookSent = true;
-            } else {
-                console.warn('Webhook failed:', response.status, response.statusText);
-                this.webhookSent = false;
-            }
-
-        } catch (error) {
-            console.error('Webhook error:', error);
-            this.webhookSent = false;
-            // Don't show error to user - webhook failure shouldn't disrupt their experience
-        }
     }
 }
 
-// Initialize the application when the DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if all required classes are available
-    if (typeof FormValidator === 'undefined' || 
-        typeof ROICalculator === 'undefined' || 
+// Initialize on load
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof ROICalculator === 'undefined' || 
         typeof ROICharts === 'undefined' || 
         typeof PDFGenerator === 'undefined') {
         console.error('Required classes not loaded');

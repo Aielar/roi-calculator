@@ -5,11 +5,14 @@ class ROICharts {
         this.colors = {
             primary: '#667eea',
             secondary: '#764ba2',
-            success: '#28a745',
-            warning: '#ffc107',
-            info: '#17a2b8',
-            light: '#f8f9fa',
-            dark: '#343a40'
+            success: '#10B981',
+            warning: '#F59E0B',
+            info: '#3B82F6',
+            light: '#F8FAFC',
+            dark: '#0B1120',
+            text: '#F8FAFC',
+            grid: 'rgba(248, 250, 252, 0.1)',
+            error: '#EF4444'
         };
         
         this.gradients = {};
@@ -85,6 +88,11 @@ class ROICharts {
                         display: false // Hide legend since we only have one dataset
                     },
                     tooltip: {
+                        backgroundColor: this.colors.dark,
+                        titleColor: this.colors.light,
+                        bodyColor: this.colors.light,
+                        borderColor: this.colors.grid,
+                        borderWidth: 1,
                         callbacks: {
                             label: function(context) {
                                 const value = context.parsed.x;
@@ -96,7 +104,7 @@ class ROICharts {
                     datalabels: {
                         anchor: 'end',
                         align: 'right',
-                        color: '#333',
+                        color: this.colors.text,
                         font: {
                             weight: 'bold',
                             size: 11
@@ -114,17 +122,19 @@ class ROICharts {
                     x: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(0,0,0,0.1)'
+                            color: this.colors.grid
                         },
                         title: {
                             display: true,
                             text: 'Annual Savings ($)',
+                            color: this.colors.text,
                             font: {
                                 size: 12,
                                 weight: 'bold'
                             }
                         },
                         ticks: {
+                            color: this.colors.text,
                             callback: function(value) {
                                 return '$' + (value / 1000).toFixed(0) + 'K';
                             }
@@ -135,6 +145,7 @@ class ROICharts {
                             display: false
                         },
                         ticks: {
+                            color: this.colors.text,
                             font: {
                                 size: 11
                             },
@@ -164,7 +175,7 @@ class ROICharts {
             plugins: [{
                 // Custom plugin to draw percentage labels
                 id: 'percentageLabels',
-                afterDatasetsDraw: function(chart) {
+                afterDatasetsDraw: (chart) => {
                     const ctx = chart.ctx;
                     ctx.save();
                     
@@ -172,14 +183,13 @@ class ROICharts {
                         const meta = chart.getDatasetMeta(i);
                         meta.data.forEach((bar, index) => {
                             const percentage = percentages[index];
-                            const value = dataset.data[index];
                             
                             // Position for the label
                             const x = bar.x + 10;
                             const y = bar.y + 4;
                             
                             // Style the text
-                            ctx.fillStyle = '#333';
+                            ctx.fillStyle = this.colors.text;
                             ctx.font = 'bold 12px Inter, sans-serif';
                             ctx.textAlign = 'left';
                             ctx.textBaseline = 'middle';
@@ -204,9 +214,9 @@ class ROICharts {
         // Get canvas context for gradients
         const canvasCtx = ctx.getContext('2d');
         
-        const valueGradient = this.createGradient(canvasCtx, 'rgba(102, 126, 234, 0.8)', 'rgba(102, 126, 234, 0.1)');
-        const costGradient = this.createGradient(canvasCtx, 'rgba(220, 53, 69, 0.8)', 'rgba(220, 53, 69, 0.1)');
-        const netGradient = this.createGradient(canvasCtx, 'rgba(40, 167, 69, 0.8)', 'rgba(40, 167, 69, 0.1)');
+        const valueGradient = this.createGradient(canvasCtx, 'rgba(102, 126, 234, 0.5)', 'rgba(102, 126, 234, 0.0)');
+        const costGradient = this.createGradient(canvasCtx, 'rgba(239, 68, 68, 0.5)', 'rgba(239, 68, 68, 0.0)');
+        const netGradient = this.createGradient(canvasCtx, 'rgba(16, 185, 129, 0.5)', 'rgba(16, 185, 129, 0.0)');
 
         // Filter timeline to show every 3 months for first year, then every 6 months
         const filteredTimeline = timeline.filter((item, index) => {
@@ -234,19 +244,19 @@ class ROICharts {
                     fill: true,
                     tension: 0.4,
                     pointBackgroundColor: this.colors.primary,
-                    pointBorderColor: '#fff',
+                    pointBorderColor: this.colors.light,
                     pointBorderWidth: 2,
                     pointRadius: 4
                 },
                 {
                     label: 'Cumulative Cost',
                     data: filteredTimeline.map(item => item.cumulativeCost),
-                    borderColor: '#dc3545',
+                    borderColor: this.colors.error,
                     backgroundColor: costGradient,
                     fill: true,
                     tension: 0.4,
-                    pointBackgroundColor: '#dc3545',
-                    pointBorderColor: '#fff',
+                    pointBackgroundColor: this.colors.error,
+                    pointBorderColor: this.colors.light,
                     pointBorderWidth: 2,
                     pointRadius: 4
                 },
@@ -259,7 +269,7 @@ class ROICharts {
                     tension: 0.4,
                     borderWidth: 3,
                     pointBackgroundColor: this.colors.success,
-                    pointBorderColor: '#fff',
+                    pointBorderColor: this.colors.light,
                     pointBorderWidth: 2,
                     pointRadius: 5
                 }
@@ -280,6 +290,7 @@ class ROICharts {
                     legend: {
                         position: 'top',
                         labels: {
+                            color: this.colors.text,
                             padding: 20,
                             font: {
                                 size: 12
@@ -287,6 +298,11 @@ class ROICharts {
                         }
                     },
                     tooltip: {
+                        backgroundColor: this.colors.dark,
+                        titleColor: this.colors.light,
+                        bodyColor: this.colors.light,
+                        borderColor: this.colors.grid,
+                        borderWidth: 1,
                         callbacks: {
                             label: function(context) {
                                 const label = context.dataset.label || '';
@@ -303,19 +319,25 @@ class ROICharts {
                         },
                         title: {
                             display: true,
-                            text: 'Timeline'
+                            text: 'Timeline',
+                            color: this.colors.text
+                        },
+                        ticks: {
+                            color: this.colors.text
                         }
                     },
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(0,0,0,0.1)'
+                            color: this.colors.grid
                         },
                         title: {
                             display: true,
-                            text: 'Value ($)'
+                            text: 'Value ($)',
+                            color: this.colors.text
                         },
                         ticks: {
+                            color: this.colors.text,
                             callback: function(value) {
                                 return '$' + (value / 1000).toFixed(0) + 'K';
                             }
@@ -366,9 +388,21 @@ class ROICharts {
                     y: {
                         beginAtZero: true,
                         ticks: {
+                            color: this.colors.text,
                             callback: function(value) {
                                 return '$' + (value / 1000).toFixed(0) + 'K';
                             }
+                        },
+                        grid: {
+                            color: this.colors.grid
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: this.colors.text
+                        },
+                        grid: {
+                            display: false
                         }
                     }
                 }
@@ -427,13 +461,7 @@ class ROICharts {
 
     // Update chart colors based on theme
     updateTheme(isDark = false) {
-        if (isDark) {
-            this.colors.primary = '#8b92ff';
-            this.colors.secondary = '#9b8bff';
-        } else {
-            this.colors.primary = '#667eea';
-            this.colors.secondary = '#764ba2';
-        }
+        // Theme is now handled by default colors
     }
 }
 

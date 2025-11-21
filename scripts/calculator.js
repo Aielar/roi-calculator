@@ -98,7 +98,7 @@ class ROICalculator {
         };
 
         // Apply industry and company size multipliers
-        inputs.industryMultiplier = this.industryMultipliers[inputs.industry];
+        inputs.industryMultiplier = this.industryMultipliers[inputs.industry] || 1.0;
         inputs.companySizeMultiplier = this.companySizeMultipliers[inputs.companySize];
         inputs.overallMultiplier = inputs.industryMultiplier * inputs.companySizeMultiplier;
 
