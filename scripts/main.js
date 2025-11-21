@@ -425,10 +425,38 @@ class ROICalculatorApp {
     }
 
     async sendWebhookData() {
-        // Placeholder for webhook integration
-        // In a real implementation, this would send data to HubSpot or another CRM
-        console.log('Sending webhook data (simulated)...');
-        return Promise.resolve();
+        const webhookUrl = 'https://sqldbm1.app.n8n.cloud/webhook/form-submission';
+        
+        // Get HubSpot UTK
+        const hutk = this.getCookie('hubspotutk');
+        
+        console.log('Sending webhook data to:', webhookUrl);
+        
+        try {
+            const response = await fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    hutk: hutk, // HubSpot User Token
+                    pageUri: window.location.href,
+                    pageName: document.title,
+                    formData: this.formData,
+                    results: this.results
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Webhook error: ${response.status}`);
+            }
+            
+            console.log('Webhook sent successfully');
+        } catch (error) {
+            console.error('Failed to send webhook:', error);
+            // Don't throw error to prevent blocking the UI
+        }
     }
 
     showLoading() {
