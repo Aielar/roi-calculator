@@ -42,9 +42,12 @@ class PDFGenerator {
             // Page 2: Detailed Breakdown & Calculations
             doc.addPage();
             this.addHeader(doc, true); // Simplified header
-            this.addDetailedBreakdown(doc, results);
-            this.addAssumptions(doc);
-            this.addCalculationDetails(doc, results);
+            
+            // Add sections with dynamic positioning
+            let currentY = this.addDetailedBreakdown(doc, results);
+            currentY = this.addAssumptions(doc, currentY);
+            this.addCalculationDetails(doc, results, currentY);
+            
             this.addFooter(doc, 2);
 
             // Generate filename
@@ -286,10 +289,12 @@ class PDFGenerator {
         doc.setFont('helvetica', 'bold');
         doc.text('Total Annual Value', startX + 5, yPos);
         doc.text(`$${results.metrics.totalAnnualValue.toLocaleString()}`, startX + colWidths[0] + 5, yPos);
+        
+        return yPos + 15; // Return final position with some spacing
     }
 
-    addAssumptions(doc) {
-        let yPos = 120;
+    addAssumptions(doc, startY = 120) {
+        let yPos = startY;
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
         doc.text('Key Assumptions', this.margin, yPos);
@@ -311,10 +316,12 @@ class PDFGenerator {
             doc.text(assumption, this.margin, yPos);
             yPos += 5;
         });
+        
+        return yPos + 10; // Return final position with spacing
     }
 
-    addCalculationDetails(doc, results) {
-        let yPos = 160;
+    addCalculationDetails(doc, results, startY = 160) {
+        let yPos = startY;
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(...this.colors.text);
@@ -325,7 +332,7 @@ class PDFGenerator {
         const calculations = [
             {
                 title: '1. Labor Efficiency',
-                formula: `Team Size (${results.inputs.teamSize}) × FTE Cost ($150k) × Time Saved (${results.savings.laborEfficiency.timeSavedPercent}%)`,
+                formula: `Team Size (${results.inputs.teamSize}) × FTE Cost ($150k) × Effective Time Saved (${results.savings.laborEfficiency.effectiveTimeSaved}%) [${results.savings.laborEfficiency.timeSavedPercent}% × 70% modeling time]`,
                 result: `$${results.savings.laborEfficiency.annualSavings.toLocaleString()}`
             },
             {

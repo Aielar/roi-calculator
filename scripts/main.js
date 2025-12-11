@@ -530,10 +530,13 @@ class ROICalculatorApp {
         let html = '';
 
         this.results.breakdown.forEach(item => {
+            const valueClass = item.amount < 0 ? 'negative-value' : '';
+            const amountDisplay = item.amount < 0 ? `($${Math.abs(item.amount).toLocaleString()})` : `$${item.amount.toLocaleString()}`;
+            
             html += `
-                <div class="breakdown-item">
-                    <div class="breakdown-label">${item.category}</div>
-                    <div class="breakdown-value">$${item.amount.toLocaleString()}</div>
+                <div class="breakdown-item ${valueClass}">
+                    <div class="breakdown-label">${item.category}${item.isOneTime ? ' (One-time)' : ''}</div>
+                    <div class="breakdown-value">${amountDisplay}</div>
                 </div>
             `;
         });
@@ -547,7 +550,18 @@ class ROICalculatorApp {
             <div class="breakdown-item">
                 <div class="breakdown-label">Less: SqlDBM Annual Cost</div>
                 <div class="breakdown-value">($${this.calculator.SQLDBM_ANNUAL_COST.toLocaleString()})</div>
-            </div>
+            </div>`;
+            
+        // Add implementation cost if present
+        if (this.results.metrics.implementationCost > 0) {
+            html += `
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Less: Implementation Cost (Year 1 only)</div>
+                    <div class="breakdown-value">($${this.results.metrics.implementationCost.toLocaleString()})</div>
+                </div>`;
+        }
+            
+        html += `
             <div class="breakdown-item" style="background: #f8f9fa; font-weight: bold;">
                 <div class="breakdown-label">Net Annual Value</div>
                 <div class="breakdown-value">$${this.results.metrics.netAnnualValue.toLocaleString()}</div>

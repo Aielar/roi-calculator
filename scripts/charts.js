@@ -10,8 +10,8 @@ class ROICharts {
             info: '#3B82F6',
             light: '#F8FAFC',
             dark: '#0B1120',
-            text: '#F8FAFC',
-            grid: 'rgba(248, 250, 252, 0.1)',
+            text: '#1F2937', // Dark color for better PDF visibility
+            grid: 'rgba(31, 41, 55, 0.2)', // Darker grid for PDF
             error: '#EF4444'
         };
         
@@ -88,9 +88,9 @@ class ROICharts {
                         display: false // Hide legend since we only have one dataset
                     },
                     tooltip: {
-                        backgroundColor: this.colors.dark,
-                        titleColor: this.colors.light,
-                        bodyColor: this.colors.light,
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: this.colors.text,
+                        bodyColor: this.colors.text,
                         borderColor: this.colors.grid,
                         borderWidth: 1,
                         callbacks: {
@@ -298,9 +298,9 @@ class ROICharts {
                         }
                     },
                     tooltip: {
-                        backgroundColor: this.colors.dark,
-                        titleColor: this.colors.light,
-                        bodyColor: this.colors.light,
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: this.colors.text,
+                        bodyColor: this.colors.text,
                         borderColor: this.colors.grid,
                         borderWidth: 1,
                         callbacks: {

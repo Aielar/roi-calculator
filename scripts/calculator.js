@@ -30,6 +30,13 @@ class ROICalculator {
             'large': 1.1,
             'enterprise': 1.2
         };
+        
+        // Implementation costs (one-time, Year 1)
+        this.implementationCosts = {
+            'medium': 5000,   // Medium (< $500M): $5,000
+            'large': 15000,   // Large ($500M - $5B): $15,000
+            'enterprise': 30000  // Enterprise (> $5B): $30,000
+        };
     }
 
     calculate(formData) {
@@ -47,6 +54,7 @@ class ROICalculator {
             results.savings.reworkReduction = this.calculateReworkReduction(results.inputs);
             results.savings.downstreamProductivity = this.calculateDownstreamProductivityGains(results.inputs);
             results.savings.toolConsolidation = this.calculateToolConsolidationSavings(results.inputs);
+            results.savings.implementationCost = this.calculateImplementationCost(results.inputs);
 
             // Calculate total annual value and ROI metrics
             results.metrics = this.calculateROIMetrics(results.savings);
@@ -107,7 +115,7 @@ class ROICalculator {
 
     calculateLaborEfficiencySavings(inputs) {
         // Step 1: Labor Efficiency Savings
-        // Formula: (Total Architects/Engineers × Avg Loaded Cost per FTE × % Time Saved)
+        // Formula: (Total Architects/Engineers × Avg Loaded Cost per FTE × % Time Saved × 70% modeling time)
         
         let timeSavedPercent = 0.25; // Default 25% time saved
         
@@ -137,12 +145,17 @@ class ROICalculator {
         // Cap at reasonable maximum
         timeSavedPercent = Math.min(timeSavedPercent, 0.45);
         
-        const annualSavings = inputs.teamSize * this.DEFAULT_FTE_COST * timeSavedPercent;
+        // Apply 70% factor - engineers only spend 70% of time actually modeling
+        const modelingTimeFactor = 0.70;
+        const effectiveTimeSaved = timeSavedPercent * modelingTimeFactor;
+        
+        const annualSavings = inputs.teamSize * this.DEFAULT_FTE_COST * effectiveTimeSaved;
         
         return {
             annualSavings: Math.round(annualSavings),
             timeSavedPercent: Math.round(timeSavedPercent * 100),
-            details: `${inputs.teamSize} engineers × $${this.DEFAULT_FTE_COST.toLocaleString()} × ${Math.round(timeSavedPercent * 100)}% time saved`
+            effectiveTimeSaved: Math.round(effectiveTimeSaved * 100),
+            details: `${inputs.teamSize} engineers × $${this.DEFAULT_FTE_COST.toLocaleString()} × ${Math.round(effectiveTimeSaved * 100)}% effective time saved (${Math.round(timeSavedPercent * 100)}% × 70% modeling time)`
         };
     }
 
@@ -260,21 +273,38 @@ class ROICalculator {
         };
     }
 
+    calculateImplementationCost(inputs) {
+        const implementationCost = this.implementationCosts[inputs.companySize] || this.implementationCosts['medium'];
+        
+        return {
+            oneTimeCost: implementationCost,
+            details: `One-time implementation cost for ${inputs.companySize} company`
+        };
+    }
+
     calculateROIMetrics(savings) {
-        const totalAnnualValue = Object.values(savings).reduce((sum, saving) => sum + saving.annualSavings, 0);
+        // Calculate annual savings (excluding implementation cost which is one-time)
+        const totalAnnualValue = Object.entries(savings)
+            .filter(([key]) => key !== 'implementationCost')
+            .reduce((sum, [, saving]) => sum + saving.annualSavings, 0);
+        
+        const implementationCost = savings.implementationCost?.oneTimeCost || 0;
+        const totalFirstYearCost = this.SQLDBM_ANNUAL_COST + implementationCost;
         const netAnnualValue = totalAnnualValue - this.SQLDBM_ANNUAL_COST;
         
-        // Payback period in months
-        const paybackMonths = totalAnnualValue > 0 ? (this.SQLDBM_ANNUAL_COST / totalAnnualValue) * 12 : 99;
+        // Payback period in months (including implementation cost)
+        const paybackMonths = totalAnnualValue > 0 ? (totalFirstYearCost / totalAnnualValue) * 12 : 99;
         
         // 3-year ROI calculation
         const threeYearValue = netAnnualValue * 3;
-        const threeYearInvestment = this.SQLDBM_ANNUAL_COST * 3;
+        const threeYearInvestment = (this.SQLDBM_ANNUAL_COST * 3) + implementationCost;
         const threeYearROI = threeYearInvestment > 0 ? threeYearValue / threeYearInvestment : 0;
         
         return {
             totalAnnualValue: Math.round(totalAnnualValue),
             netAnnualValue: Math.round(netAnnualValue),
+            implementationCost: Math.round(implementationCost),
+            totalFirstYearCost: Math.round(totalFirstYearCost),
             paybackMonths: Math.max(0.1, Math.round(paybackMonths * 10) / 10),
             threeYearROI: Math.round(threeYearROI * 10) / 10,
             threeYearValue: Math.round(threeYearValue),
@@ -313,10 +343,26 @@ class ROICalculator {
             description: savings.toolConsolidation.details
         });
         
-        // Calculate percentages
-        const total = breakdown.reduce((sum, item) => sum + item.amount, 0);
+        if (savings.implementationCost && savings.implementationCost.oneTimeCost > 0) {
+            breakdown.push({
+                category: 'Implementation Cost (Year 1)',
+                amount: -savings.implementationCost.oneTimeCost,
+                percentage: 0,
+                description: savings.implementationCost.details,
+                isOneTime: true
+            });
+        }
+        
+        // Calculate percentages (only for positive amounts)
+        const totalPositive = breakdown
+            .filter(item => item.amount > 0)
+            .reduce((sum, item) => sum + item.amount, 0);
         breakdown.forEach(item => {
-            item.percentage = total > 0 ? Math.round((item.amount / total) * 100) : 0;
+            if (item.amount > 0) {
+                item.percentage = totalPositive > 0 ? Math.round((item.amount / totalPositive) * 100) : 0;
+            } else {
+                item.percentage = 0; // Implementation cost doesn't get a percentage
+            }
         });
         
         return breakdown;
@@ -332,6 +378,11 @@ class ROICalculator {
         for (let month = 1; month <= 36; month++) {
             cumulativeValue += monthlyValue;
             cumulativeCost += monthlyCost;
+            
+            // Add implementation cost in month 1
+            if (month === 1 && metrics.implementationCost > 0) {
+                cumulativeCost += metrics.implementationCost;
+            }
             
             timeline.push({
                 month: month,
