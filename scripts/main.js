@@ -425,8 +425,16 @@ class ROICalculatorApp {
     }
 
     async sendWebhookData() {
+        // Disabled for test builds so submissions don't hit the production
+        // n8n / HubSpot pipeline. Set ENABLE_WEBHOOK = true to re-enable.
+        const ENABLE_WEBHOOK = false;
+        if (!ENABLE_WEBHOOK) {
+            console.log('Webhook disabled (test build) — skipping submission.');
+            return;
+        }
+
         const webhookUrl = 'https://sqldbm1.app.n8n.cloud/webhook/form-submission';
-        
+
         // Get HubSpot UTK
         const hutk = this.getCookie('hubspotutk');
         

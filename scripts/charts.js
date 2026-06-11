@@ -2,6 +2,20 @@
 class ROICharts {
     constructor() {
         this.charts = {};
+
+        // Text/grid colors differ between the on-screen dark UI and the
+        // white-background PDF export. Charts render with screen colors by
+        // default; PDFGenerator calls setMode('export') right before it
+        // screenshots the canvas, then setMode('screen') to restore.
+        this.screenColors = {
+            text: '#E2E8F0',                    // light text for the dark UI
+            grid: 'rgba(226, 232, 240, 0.12)'   // subtle light grid lines
+        };
+        this.exportColors = {
+            text: '#1F2937',                    // dark text for the white PDF page
+            grid: 'rgba(31, 41, 55, 0.2)'
+        };
+
         this.colors = {
             primary: '#667eea',
             secondary: '#764ba2',
@@ -10,12 +24,50 @@ class ROICharts {
             info: '#3B82F6',
             light: '#F8FAFC',
             dark: '#0B1120',
-            text: '#1F2937', // Dark color for better PDF visibility
-            grid: 'rgba(31, 41, 55, 0.2)', // Darker grid for PDF
+            text: this.screenColors.text, // default to on-screen (dark UI)
+            grid: this.screenColors.grid,
             error: '#EF4444'
         };
-        
+
         this.gradients = {};
+    }
+
+    // Swap text/grid colors for screen vs. PDF export and re-render all charts.
+    // mode: 'screen' (light text, dark UI) | 'export' (dark text, white PDF page)
+    setMode(mode) {
+        const palette = mode === 'export' ? this.exportColors : this.screenColors;
+        this.colors.text = palette.text;
+        this.colors.grid = palette.grid;
+
+        Object.values(this.charts).forEach(chart => {
+            if (!chart || !chart.options) return;
+            const opts = chart.options;
+
+            if (opts.scales) {
+                ['x', 'y'].forEach(axis => {
+                    const scale = opts.scales[axis];
+                    if (!scale) return;
+                    if (scale.ticks) scale.ticks.color = palette.text;
+                    if (scale.title) scale.title.color = palette.text;
+                    if (scale.grid && scale.grid.display !== false) {
+                        scale.grid.color = palette.grid;
+                    }
+                });
+            }
+
+            if (opts.plugins) {
+                if (opts.plugins.legend && opts.plugins.legend.labels) {
+                    opts.plugins.legend.labels.color = palette.text;
+                }
+                if (opts.plugins.datalabels) {
+                    opts.plugins.datalabels.color = palette.text;
+                }
+            }
+
+            // The custom percentageLabels plugin reads this.colors.text at draw
+            // time, so it picks up the new color on this update automatically.
+            chart.update('none');
+        });
     }
 
     createGradient(ctx, color1, color2) {

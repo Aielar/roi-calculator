@@ -68,7 +68,14 @@ class PDFGenerator {
 
     async captureCharts() {
         const charts = {};
+        // The on-screen charts use light text for the dark UI; switch them to
+        // dark text so they're legible on the white PDF page, capture, restore.
+        const roiCharts = window.roiApp && window.roiApp.charts;
         try {
+            if (roiCharts && typeof roiCharts.setMode === 'function') {
+                roiCharts.setMode('export');
+            }
+
             const breakdownCanvas = document.getElementById('valueBreakdownChart');
             const timelineCanvas = document.getElementById('roiTimelineChart');
 
@@ -80,6 +87,10 @@ class PDFGenerator {
             }
         } catch (e) {
             console.warn('Error capturing charts:', e);
+        } finally {
+            if (roiCharts && typeof roiCharts.setMode === 'function') {
+                roiCharts.setMode('screen');
+            }
         }
         return charts;
     }
